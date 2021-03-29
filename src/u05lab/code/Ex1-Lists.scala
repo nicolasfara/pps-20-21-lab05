@@ -1,5 +1,6 @@
-package u04lab.code
+package u05lab.code
 
+import scala.::
 import scala.annotation.tailrec
 import scala.language.postfixOps // silence warnings
 
@@ -76,7 +77,7 @@ trait ListImplementation[A] extends List[A] {
     case _ => list
   }
   override def foreach(consumer: (A)=>Unit): Unit = this match {
-    case h :: t => {consumer(h); t foreach consumer}
+    case h :: t => consumer(h); t foreach consumer
     case _ => None
   }
   override def get(pos: Int): Option[A] = this match {
@@ -108,16 +109,31 @@ trait ListImplementation[A] extends List[A] {
     this.reverse().foldLeft(acc)((acc,elem) => f(elem,acc))
 
   override def reverse(): List[A] =
-    this.foldLeft(Nil[A].asInstanceOf[List[A]])((acc,elem) => Cons(elem,acc))
+    this.foldLeft(Nil[A]().asInstanceOf[List[A]])((acc, elem) => Cons(elem,acc))
 
   override def flatMap[B](f: A => List[B]): List[B] = this match {
     case Cons(h,t) => f(h).append(t.flatMap(f))
     case Nil() => Nil()
   }
 
-  override def zipRight: List[(A,Int)] = ??? // questions: what is the type of keyword ???
+  override def zipRight: List[(A,Int)] = {
+    @tailrec
+    def _zip(l: List[A], index: Int = 0, res: List[(A, Int)] = List.nil): List[(A, Int)] = l match {
+      case h :: t => _zip(t, index + 1, (h, index) :: res)
+      case _ => res
+    }
+    _zip(this).reverse()
+  } // questions: what is the type of keyword ???
 
-  override def partition(pred: A => Boolean): (List[A],List[A]) = ???
+  override def partition(pred: A => Boolean): (List[A], List[A]) = {
+    @tailrec
+    def _partition(l: List[A])(pred: A => Boolean)(acc: (List[A], List[A]) = (List.nil, List.nil)): (List[A], List[A]) = l match {
+      case h :: t if pred(h) => _partition(t)(pred)((h :: acc._1, acc._2))
+      case h :: t if !pred(h) => _partition(t)(pred)((acc._1, h :: acc._2))
+      case _ => (acc._1.reverse(), acc._2.reverse())
+    }
+    _partition(this)(pred)()
+  }
 
   override def span(pred: A => Boolean): (List[A],List[A]) = ???
 
