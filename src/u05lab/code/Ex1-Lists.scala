@@ -146,9 +146,9 @@ trait ListImplementation[A] extends List[A] {
     * @throws UnsupportedOperationException if the list is empty
     */
   override def reduce(op: (A,A)=>A): A = {
-    this.head match {
-      case None => throw new UnsupportedOperationException()
-      case Some(_) => this.tail.get.foldLeft(this.head.get)(op)
+    this match {
+      case h :: t => t.foldLeft(h)(op)
+      case Nil() => throw new UnsupportedOperationException()
     }
   }
 
