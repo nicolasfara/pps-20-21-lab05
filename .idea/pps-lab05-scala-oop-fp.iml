@@ -25,5 +25,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="scala-sdk-2.13.4-20201218-225751-unknown" level="application" />
   </component>
 </module>
