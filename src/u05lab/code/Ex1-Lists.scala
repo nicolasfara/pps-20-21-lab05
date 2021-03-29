@@ -183,7 +183,6 @@ trait ListImplementation[A] extends List[A] {
     }
     _collect(this)(partial)()
   }
-
 }
 
 // Factories
