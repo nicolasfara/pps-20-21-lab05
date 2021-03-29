@@ -154,14 +154,9 @@ trait ListImplementation[A] extends List[A] {
     * @throws UnsupportedOperationException if the list is empty
     */
   override def reduce(op: (A,A)=>A): A = {
-    @tailrec
-    def _reduce(l: List[A])(op: (A, A) => A)(acc: A): A = l match {
-      case h :: t => _reduce(t)(op)(op(h, acc))
-      case _ => acc
-    }
     this.head match {
       case None => throw new UnsupportedOperationException()
-      case Some(s) => _reduce(this.tail.get)(op)(s)
+      case Some(_) => this.tail.get.foldLeft(this.head.get)(op)
     }
   }
 
