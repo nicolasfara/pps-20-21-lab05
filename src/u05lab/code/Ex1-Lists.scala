@@ -127,7 +127,7 @@ trait ListImplementation[A] extends List[A] {
     _zip(this).reverse()
   } // questions: what is the type of keyword ???
 
-  override def partition(pred: A => Boolean): (List[A], List[A]) = (this.filter(pred), this.filter(e => !pred(e)))
+  override def partition(pred: A => Boolean): (List[A], List[A]) = (this.filter(pred), this.filter(!pred(_)))
 
   override def span(pred: A => Boolean): (List[A],List[A]) = {
     var split = false
