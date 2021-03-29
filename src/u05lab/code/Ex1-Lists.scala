@@ -169,15 +169,8 @@ trait ListImplementation[A] extends List[A] {
     _takeRight(this.reverse())(n)()
   }
 
-  override def collect[B](partial: PartialFunction[A, B]): List[B] = {
-    @tailrec
-    def _collect(l: List[A])(pf: PartialFunction[A, B])(res: List[B] = List.nil): List[B] = l match {
-      case h :: t if pf.isDefinedAt(h) => _collect(t)(pf)(pf(h) :: res)
-      case _ :: t => _collect(t)(pf)(res)
-      case _  => res.reverse()
-    }
-    _collect(this)(partial)()
-  }
+  override def collect[B](partial: PartialFunction[A, B]): List[B] =
+    this.flatMap(e => if (partial.isDefinedAt(e)) List(partial.apply(e)) else List())
 }
 
 // Factories
