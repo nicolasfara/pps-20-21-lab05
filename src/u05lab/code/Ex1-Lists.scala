@@ -40,6 +40,8 @@ sealed trait List[A] {
 
   def takeRight(n: Int): List[A]
 
+  def collect[B](partial: PartialFunction[A, B]): List[B]
+
   // right-associative construction: 10 :: 20 :: 30 :: Nil()
   def ::(head: A): List[A] = Cons(head,this)
 }
@@ -135,15 +137,53 @@ trait ListImplementation[A] extends List[A] {
     _partition(this)(pred)()
   }
 
-  override def span(pred: A => Boolean): (List[A],List[A]) = ???
+  override def span(pred: A => Boolean): (List[A],List[A]) = {
+    var split = false
+    @tailrec
+    def _span(l: List[A])(pred: A => Boolean)(res: (List[A], List[A]) = (List.nil, List.nil)): (List[A], List[A]) = (l, split) match {
+      case (h :: t, false) if !pred(h) => _span(t)(pred)((h :: res._1, res._2))
+      case (h :: t, false) if pred(h) => split = true; _span(t)(pred)((res._1, h :: res._2))
+      case (h :: t, true) => _span(t)(pred)((res._1, h :: res._2))
+      case _ => (res._1.reverse(), res._2.reverse())
+    }
+    _span(this)(pred)()
+  }
 
   /**
     *
     * @throws UnsupportedOperationException if the list is empty
     */
-  override def reduce(op: (A,A)=>A): A = ???
+  override def reduce(op: (A,A)=>A): A = {
+    @tailrec
+    def _reduce(l: List[A])(op: (A, A) => A)(acc: A): A = l match {
+      case h :: t => _reduce(t)(op)(op(h, acc))
+      case _ => acc
+    }
+    this.head match {
+      case None => throw new UnsupportedOperationException()
+      case Some(s) => _reduce(this.tail.get)(op)(s)
+    }
+  }
 
-  override def takeRight(n: Int): List[A] = ???
+  override def takeRight(n: Int): List[A] = {
+    @tailrec
+    def _takeRight(l: List[A])(n: Int)(res: List[A] = List.nil): List[A] = l match {
+      case h :: t if n > 0 => _takeRight(t)(n - 1)(h :: res)
+      case _ => res
+    }
+    _takeRight(this.reverse())(n)()
+  }
+
+  override def collect[B](partial: PartialFunction[A, B]): List[B] = {
+    @tailrec
+    def _collect(l: List[A])(pf: PartialFunction[A, B])(res: List[B] = List.nil): List[B] = l match {
+      case h :: t if pf.isDefinedAt(h) => _collect(t)(pf)(pf(h) :: res)
+      case _ :: t => _collect(t)(pf)(res)
+      case _  => res.reverse()
+    }
+    _collect(this)(partial)()
+  }
+
 }
 
 // Factories
@@ -193,11 +233,12 @@ object ListsTest extends App {
 
   // Ex. 4: reduce
   println(l.reduce(_+_)) // 100
+  println(List(10).reduce(_+_)) // 10
   try { List[Int]().reduce(_+_); assert(false) } catch { case _:UnsupportedOperationException => }
 
   // Ex. 5: takeRight
   println(l.takeRight(2)) // Cons(30,Cons(40,Nil()))
 
   // Ex. 6: collect
-  // println(l.collect { case x if x<15 || x>35 => x-1 }) // Cons(9, Cons(39, Nil()))
+  println(l.collect { case x if x<15 || x>35 => x-1 }) // Cons(9, Cons(39, Nil()))
 }
