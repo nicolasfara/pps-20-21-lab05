@@ -127,15 +127,7 @@ trait ListImplementation[A] extends List[A] {
     _zip(this).reverse()
   } // questions: what is the type of keyword ???
 
-  override def partition(pred: A => Boolean): (List[A], List[A]) = {
-    @tailrec
-    def _partition(l: List[A])(pred: A => Boolean)(acc: (List[A], List[A]) = (List.nil, List.nil)): (List[A], List[A]) = l match {
-      case h :: t if pred(h) => _partition(t)(pred)((h :: acc._1, acc._2))
-      case h :: t if !pred(h) => _partition(t)(pred)((acc._1, h :: acc._2))
-      case _ => (acc._1.reverse(), acc._2.reverse())
-    }
-    _partition(this)(pred)()
-  }
+  override def partition(pred: A => Boolean): (List[A], List[A]) = (this.filter(pred), this.filter(e => !pred(e)))
 
   override def span(pred: A => Boolean): (List[A],List[A]) = {
     var split = false
