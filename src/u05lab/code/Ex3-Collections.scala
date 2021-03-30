@@ -13,7 +13,7 @@ object PerformanceUtils {
     val startTime = System.nanoTime()
     val res = expr
     val duration = FiniteDuration(System.nanoTime()-startTime, TimeUnit.NANOSECONDS)
-    if(!msg.isEmpty) println(msg + " -- " + duration.toNanos + " nanos; " + duration.toMillis + "ms")
+    if(msg.nonEmpty) println(msg + " -- " + duration.toNanos + " nanos; " + duration.toMillis + "ms")
     MeasurementResults(res, duration)
   }
 
