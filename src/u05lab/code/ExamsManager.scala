@@ -52,7 +52,7 @@ object ExamsManager {
   def apply(): ExamsManager = ExamManagerImpl()
 
   private case class ExamManagerImpl() extends ExamsManager {
-    private var calls: mutable.Map[String, mutable.Set[(String, ExamsResult)]] = mutable.Map()
+    private val calls: mutable.Map[String, mutable.Set[(String, ExamsResult)]] = mutable.Map()
 
     override def createNewCall(call: String): Unit = {
       if (calls.contains(call)) throw new IllegalArgumentException()
